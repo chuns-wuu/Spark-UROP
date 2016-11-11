@@ -11,6 +11,7 @@ global mapping
 mapping = {}
 files = sc.textFile("/home/chunchun/Documents/ICEWS/1995-2013/*.tab")
 
+
 def read_line(line):
     return line.split("\t")
 
@@ -23,8 +24,6 @@ def keep_columns(line):
 def print_f(line):
     print line
 
-def add_map(line):
-    return (tuple(line[:]), 1)
 
 def sum_events(fromdate=None, todate=None):
     """
@@ -38,8 +37,10 @@ def sum_events(fromdate=None, todate=None):
             {(source country, to country, CAMEO code): sum of events}}
     """
     t0 = time.time()
+
     extracted_files = files.map(read_line).map(keep_columns).coalesce(8)
     mapping = extracted_files.reduceByKey(lambda x, y: x+y).collectAsMap()
+
     t1 = time.time()
 
     #print mapping
