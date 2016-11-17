@@ -9,7 +9,7 @@ global files
 global mapping
 
 mapping = {}
-files = sc.textFile("/home/chunchun/Documents/ICEWS/1995-2013/*.tab")
+files = sc.textFile("/home/chunchun/Documents/ICEWS/1995/*.tab")
 
 
 def read_line(line):
@@ -19,7 +19,7 @@ def except_all(line):
     return [line[2] != 'all' and line[3] != 'all']
 
 def keep_columns(line):
-    return ((line[4], line[10], line[6]), 1)
+    return ((line[1], line[4], line[10], line[6]), 1)
 
 def print_f(line):
     print line
@@ -43,7 +43,7 @@ def sum_events(fromdate=None, todate=None):
 
     t1 = time.time()
 
-    #print mapping
+    print mapping
     print "finished in ",t1-t0,' seconds.'
     #Event ID   Event Date  Source Name Source Sectors  Source Country  Event Text  CAMEO Code  Intensity   Target Name Target Sectors  Target Country  Story ID    Sentence Number Publisher   City    District    Province    Country Latitude    Longitude
 

@@ -1,21 +1,16 @@
-from pyspark.sql import SparkSession, SQLContext, Row
 from pyspark import SparkContext, SparkConf
+from pyspark.sql import SQLContext
 import time
+from datetime import datetime
 
-spark = SparkSession.builder.appName("TestSQL").master("local").config("spark.eventLog.enabled", "true").getOrCreate()
+conf = SparkConf().setAppName("Pre-agregate raw files").setMaster("local").set("spark.eventLog.enabled", "true")
+sc = SparkContext(conf=conf)
 
-sc = spark.sparkContext
-sqlContext = SQLContext(sc)
-files = sqlContext.read.format('com.databricks.spark.csv').options(header='true', inferschema='false').load('/home/chunchun/Documents/ICEWS/1995/*.tab')
-#files = sc.textFile("/home/chunchun/Documents/ICEWS/1995/*.tab")
+global files
+global mapping
 
-t0 = time.time()
-lines = files.map(lambda l: l.split("\t"))
-interactions = lines.map(lambda p: Row(source=p[4], to=p[10], cameo=p[6]))
-t1 = time.time()
-print "finished in ",t1-t0,' seconds.'
+files = sc.textFile("/home/chunchun/Documents/ICEWS/1995/*.tab")
 
-sql = spark.createDataFrame(interactions)
 
 def read_line(line):
     return line.split("\t")
@@ -44,7 +39,5 @@ def by_month(month):
     print "finished in ",t1-t0,' seconds.'
 
 by_month(1)
-
-
 
 
