@@ -12,7 +12,7 @@ sc = SparkContext(conf=conf)
 global files
 global mapping
 
-files = sc.textFile("/home/chunchun/Documents/ICEWS/1995/*.tab")
+files = sc.textFile("/home/chunchun/Documents/ICEWS/1995-2013/*.tab")
 
 
 def read_line(line):
@@ -33,6 +33,7 @@ def keep_columns(line):
 
 def print_f(line):
     print line
+
 def by_month():
 
     t0 = time.time()
