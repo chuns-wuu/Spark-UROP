@@ -4,16 +4,6 @@ import time
 from datetime import datetime
 import sys
 reload(sys)
-sys.setdefaultencoding('utf-8')
-
-conf = SparkConf().setAppName("Pre-agregate raw files").setMaster("local").set("spark.eventLog.enabled", "true")
-sc = SparkContext(conf=conf)
-
-global files
-global mapping
-
-files = sc.textFile("/home/chunchun/Documents/ICEWS/1995-2013/*.tab")
-
 
 def read_line(line):
     return line.split("\t")
@@ -46,6 +36,16 @@ def by_month():
     t1 = time.time()
 
     print "finished in ",t1-t0,' seconds.'
+
+sys.setdefaultencoding('utf-8')
+
+conf = SparkConf().setAppName("Pre-agregate raw files").setMaster("local").set("spark.eventLog.enabled", "true")
+sc = SparkContext(conf=conf)
+
+global files
+global mapping
+
+files = sc.textFile("/home/chunchun/Documents/ICEWS/1995-2013/*.tab")
 
 by_month()
 

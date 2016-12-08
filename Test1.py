@@ -3,22 +3,16 @@ from pyspark.sql import SQLContext
 import time
 from datetime import datetime
 
-conf = SparkConf().setAppName("Use pre-aggregated data").setMaster("local").set("spark.eventLog.enabled", "true")
-sc = SparkContext(conf=conf)
-
-global files
-global mapping
-
-mapping = {}
-files = sc.textFile("/home/chunchun/Documents/ICEWS/preagg/*.csv")
-
 class Key:
     def __init__(self, line):
         self.row = line.split(",")
-        self.date_ = self.row[0]
-        self.date = datetime.strptime(self.row[0], "%Y-%m") if self.row[0] != 'File count' else datetime.today()
-        self.pair = self.row[1], self.row[2] if self.row[0] != 'File count' else "", ""
-        self.count = self.row[3] if self.row[0] != 'File count' else 0
+        self.date = datetime.strptime(self.row[0], "%Y-%m") if self.row[0] != 'File count' else datetime.min
+        self.pair = (self.row[1], self.row[2]) if self.row[0] != 'File count' else ("", "")
+        try:
+            self.score = golstein_lookup[self.row[3]] if self.row[0] != 'File count' else 99999
+        except KeyError:
+            raise Exception("CAMEO code "+self.row[3]+" is not in the lookup table!")
+        self.count = self.row[4] if self.row[0] != 'File count' else 0
 
     def add_qclass(self, q):
         self.q = q
@@ -26,7 +20,16 @@ class Key:
         self.g = g
 
     def get_qclass(self):
-        return {(self.date_, self.pair): self.q}
+        return {(self.date.strftime("%Y-%m"), self.pair): self.q}
+
+def gscore_map(file_name):
+    d = {}
+    with open(file_name) as f:
+        for line in f:
+            if not line.startswith('#'):
+                (key, val) = line.split()
+                d[str(key)] = val
+    return d
 
 def print_f(line):
     print line
@@ -38,7 +41,6 @@ def read_csv(line):
 def create_keys(line):
     key = Key(line)
     key.add_qclass("Qclass")
-    key.add_goldstein("G")
     return key
 
 def get_dic(key):
@@ -107,4 +109,17 @@ def use_key(fromdate=None, todate=None):
 #sum_events("1995-01", "1996-01")
 #load_pregg()
 #load_and_filter("1995-01", "1996-01")
-#use_key("1995-01", "1996-01")
+
+conf = SparkConf().setAppName("Use pre-aggregated data").setMaster("local").set("spark.eventLog.enabled", "true")
+sc = SparkContext(conf=conf)
+
+global files
+global mapping
+global golstein_lookup
+
+mapping = {}
+files = sc.textFile("/home/chunchun/Documents/ICEWS/preagg/*.csv")
+GOLDSTEIN = 'CAMEO.goldsteinscale.txt'
+golstein_lookup = gscore_map(GOLDSTEIN)
+
+use_key("1995-01", "1996-01")
