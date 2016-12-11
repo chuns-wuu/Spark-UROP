@@ -38,7 +38,7 @@ def print_f(line):
 
 def create_keys(line):
     key = Key(line)
-    return keys
+    return key
 
 def return_key(key):
     return key
@@ -61,7 +61,7 @@ global mapping
 global golstein_lookup
 
 mapping = {}
-files = sc.textFile("/home/chunchun/Documents/ICEWS/preagg/*.csv")
+files = sc.textFile("/home/chunchun/Documents/ICEWS/preagg2/*.csv")
 GOLDSTEIN = 'GOLDSTEINSCALE.txt'
 QCLASS = 'QCLASS.txt'
 CAMEO = 'CAMEOEVENTCODE.txt'

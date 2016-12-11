@@ -17,7 +17,9 @@ def encode_ascii(row):
 def keep_columns(line):
     if line[1] != "Event Date":
         source = line[4] if len(line[4]) > 0 else "Unknown"
+        source = " ".join(source.split(",")) if "," in source else source
         target = line[10] if len(line[10]) > 0 else "Unknown"
+        target = " ".join(target.split(",")) if "," in target else target
         return (datetime.strptime(line[1], "%Y-%m-%d").strftime("%Y-%m"), source, target, line[6])
     return ('File count',)
 
@@ -31,7 +33,7 @@ def by_month():
     extracted_files = files.map(read_line).map(keep_columns).coalesce(8)
     #{(YYYY-MM, Source, Target, CAMEO):count}
     mapping = extracted_files.countByValue().items()
-    output = sc.parallelize(mapping).map(write_line).saveAsTextFile("/home/chunchun/Documents/ICEWS/preagg")
+    output = sc.parallelize(mapping).map(write_line).saveAsTextFile("/home/chunchun/Documents/ICEWS/preagg2")
 
     t1 = time.time()
 
@@ -45,7 +47,7 @@ sc = SparkContext(conf=conf)
 global files
 global mapping
 
-files = sc.textFile("/home/chunchun/Documents/ICEWS/1995-2013/*.tab")
+files = sc.textFile("/home/chunchun/Documents/ICEWS/1995-1998/*.tab")
 
 by_month()
 
