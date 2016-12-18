@@ -2,29 +2,19 @@ from pyspark import SparkContext, SparkConf
 from pyspark.sql import SQLContext
 import time
 from datetime import datetime
+from key import Key
+"""
+It reads in preaggregated csv files, and filter the entries based on a time range, ex. the example filters
+1995-01 to 1996-01(inclusive). In addition, it looks up goldstein score from GOLDSTEINSCALE.txt, and categorizes
+based on the QCLASS.txt and CAMEOEVENTCODE.txt. Its output is a list of dictionaries.
 
-class Key:
-    def __init__(self, line):
-        self.row = line.split(",")
-        self.date = datetime.strptime(self.row[0], "%Y-%m") if self.row[0] != 'File count' else datetime.min
-        self.pair = (self.row[1], self.row[2]) if self.row[0] != 'File count' else ("", "")
-        self.CAMEO = self.row[3] if self.row[0] != 'File count' else -1
-        self.count = self.row[4] if self.row[0] != 'File count' else 0
+*Change line 53 to match the output path in Preaggregate.py(line 47), use "/*.csv" to include part-00000.csv*
 
-        try:
-            self.score = golstein_lookup[self.row[3]] if self.row[0] != 'File count' else 99999
-            self.qclass = qclass_lookup[self.row[3][:2]] if self.row[0] != 'File count' else 'PLACEHOLDER'
-            self.description = cameo_lookup[self.row[3]] if self.row[0] != 'File count' else 'PLACEHOLDER'
-        except KeyError:
-            raise Exception("CAMEO code "+self.row[3]+" is not in the lookup table(s)!")
-
-    def __repr__(self):
-        return {(self.date.strftime("%Y-%m"), self.pair[0], self.pair[1]): (self.score, self.qclass, self.count)}
-
-    def __str__(self):
-        return str({(self.date.strftime("%Y-%m"), self.pair[0], self.pair[1]): (self.score, self.qclass, self.count)})
-
+"""
 def lookup_generator(file_name, delimiter=" "):
+    """
+    return a dictionary with key = cameo code, and val = goldstein score or qclass(depends on the file_name)
+    """
     d = {}
     with open(file_name) as f:
         for line in f:
@@ -37,7 +27,7 @@ def print_f(line):
     print line
 
 def create_keys(line):
-    key = Key(line)
+    key = Key(line, qclass_lookup, cameo_lookup, golstein_lookup)
     return key
 
 def return_key(key):
@@ -48,7 +38,9 @@ def use_key(fromdate=None, todate=None):
     end_date = datetime.strptime(todate, "%Y-%m")
 
     t0 = time.time()
-    mapping = files.map(create_keys).filter(lambda key: start_date <= key.date <= end_date).foreach(print_f)#.map(return_key).collect()
+    #Uncomment next line if you want to print the output one by one to debug:
+    #mapping = files.map(create_keys).filter(lambda key: start_date <= key.date <= end_date).foreach(print_f)
+    mapping = files.map(create_keys).filter(lambda key: start_date <= key.date <= end_date).collect()
     t1 = time.time()
     print mapping
     print "finished in ",t1-t0,' seconds.'
@@ -62,12 +54,16 @@ global golstein_lookup
 
 mapping = {}
 files = sc.textFile("/home/chunchun/Documents/ICEWS/preagg2/*.csv")
+
+#Save these lookup files in the same directory as this python program
 GOLDSTEIN = 'GOLDSTEINSCALE.txt'
 QCLASS = 'QCLASS.txt'
 CAMEO = 'CAMEOEVENTCODE.txt'
+
 
 golstein_lookup = lookup_generator(GOLDSTEIN)
 qclass_lookup = lookup_generator(QCLASS, ",")
 cameo_lookup = lookup_generator(CAMEO, ",")
 
+#Filter the data
 use_key("1995-01", "1996-01")

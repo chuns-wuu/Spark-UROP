@@ -1,0 +1,29 @@
+1. Make sure to place the python programs under the same directory as spark-2.0.1-bin-hadoop2.7(or any other versions) folder
+ex. /spark
+        /spark-2.0.1-bin-hadoop2.7
+        gviz_spark.py
+        key.py
+        Preaggregate.py
+        make_databse.py
+        ... txt files
+
+
+2. Create a "spark-events" folder in /temp/ (This is for monitoring the spark, open localhost:4040 to monitor spark)
+
+3. Open Preaggregate.py, in which you need to modify file paths as explained in its documentation, then run it
+
+4. Open gviz_spark.py, in which you need to modify file paths as explained in its documentation, then run it
+
+5. The example in gviz_spark.py should have results finished in ~7.25 seconds, and its output should look like:
+
+{('1995-07', u'Russian Federation', u'Germany'): ('1.0', 'CONSULT', u'1')}, {('1995-12', u'Indonesia', u'Cambodia'): ('4.5', 'EXPRESS INTENT TO COOPERATE', u'1')}, {('1995-12', u'United Arab Emirates', u'Iran'): ('-2.0', 'DISAPPROVE', u'2')}, {('1995-12', u'United States', u'China'): ('5.0', 'YIELD', u'1')}, {('1995-10', u'United States', u'Lebanon'): ('-4.0', 'REJECT', u'2')}, {('1995-09', u'Iran', u'Syria'): ('7.0', 'CONSULT', u'1')}, {('1995-12', u'Egypt', u'Israel'): ('1.0', 'CONSULT', u'1')}, {('1995-01', u'Jordan', u'Jordan'): ('0.0', 'MAKE PUBLIC STATEMENT', u'3')}, {('1995-11', u'India', u'India'): ('-7.0', 'THREATEN', u'1')}, {('1996-01', u'Angola', u'Angola'): ('4.0', 'EXPRESS INTENT TO COOPERATE', u'6')}, {('1995-07', u'Occupied Palestinian Territory', u'Kuwait'): ('3.0', 'APPEAL', u'1')}, {('1995-08', u'China', u'United States'): ('-4.0', 'REDUCE RELATIONS', u'1')}
+
+{(date, source, target): (goldstein score, qclass, event count)}
+
+6. Additionally, if creating a database ever becomes an option for the project, use make_database.py to create a sqlite3 database after you've run step 3, change line 45 in make_database.py to match the folder path(line 47 of Preaggregate.py).
+
+
+
+
+
+
